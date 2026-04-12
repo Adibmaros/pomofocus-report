@@ -73,4 +73,6 @@ npm run dev
 - `public`: Aset statis dan file contoh (CSV/PDF).
 
 ## 📄 Lisensi
-Copyright © 2026 FocusReport. Seluruh hak cipta dilindungi undang-undang.
+Proyek ini dilisensikan di bawah **GNU Affero General Public License v3.0 (AGPL-3.0)** - Lihat file [LICENSE](LICENSE) untuk detail lebih lanjut.
+
+Copyright © 2026 Adib Maros. Seluruh hak cipta dilindungi undang-undang.
