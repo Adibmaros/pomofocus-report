@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   if (!result.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Invalid data: ' + result.error.errors[0].message,
+      statusMessage: 'Invalid data: ' + (result as any).error.issues[0].message,
     })
   }
 
@@ -67,8 +67,8 @@ export default defineEventHandler(async (event) => {
     .sort((a, b) => a.date.localeCompare(b.date))
 
   const sortedDays = [...dailyData].sort((a, b) => b.minutes - a.minutes)
-  const longestDay = sortedDays[0]
-  const shortestDay = sortedDays[sortedDays.length - 1]
+  const longestDay = sortedDays[0] as { date: string, minutes: number } | undefined
+  const shortestDay = sortedDays[sortedDays.length - 1] as { date: string, minutes: number } | undefined
 
   // Group by project
   const projectMap = new Map()
@@ -82,10 +82,10 @@ export default defineEventHandler(async (event) => {
 
   // Parse dates
   const sortedDates = uniqueDates.sort()
-  const periodStartStr = sortedDates[0]
-  const periodEndStr = sortedDates[sortedDates.length - 1]
+  const periodStartStr = sortedDates[0] as any
+  const periodEndStr = sortedDates[sortedDates.length - 1] as any
 
-  function parseDateStr(d) {
+  function parseDateStr(d: string) {
     if (d.length === 8) {
       return new Date(`${d.substring(0, 4)}-${d.substring(4, 6)}-${d.substring(6, 8)}`)
     }
@@ -100,7 +100,7 @@ export default defineEventHandler(async (event) => {
   // Format for AI prompt
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-  function formatDateNice(d) {
+  function formatDateNice(d: string) {
     const date = parseDateStr(d)
     return `${dayNames[date.getDay()]}, ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
   }
@@ -115,8 +115,8 @@ export default defineEventHandler(async (event) => {
 - Total waktu: ${totalMinutes} menit (${(totalMinutes / 60).toFixed(1)} jam)
 - Hari aktif: ${activeDays} dari ${totalDaysInPeriod} hari (${Math.round((activeDays / totalDaysInPeriod) * 100)}%)
 - Rata-rata per hari aktif: ${avgPerDay} menit
-- Hari terpanjang: ${formatDateNice(longestDay.date)} (${longestDay.minutes} menit)
-- Hari tersingkat: ${formatDateNice(shortestDay.date)} (${shortestDay.minutes} menit)
+- Hari terpanjang: ${longestDay ? formatDateNice(longestDay.date) : '-'} (${longestDay?.minutes || 0} menit)
+- Hari tersingkat: ${shortestDay ? formatDateNice(shortestDay.date) : '-'} (${shortestDay?.minutes || 0} menit)
 ${projectData.length > 1 ? `- Distribusi proyek: ${projectData.map((p) => `${p.name} (${p.minutes} menit)`).join(', ')}` : ''}
 
 Tulis 3 paragraf insight: (1) gambaran umum, (2) pola & temuan menarik, (3) saran actionable.`
@@ -144,7 +144,7 @@ Tulis 3 paragraf insight: (1) gambaran umum, (2) pola & temuan menarik, (3) sara
           max_tokens: 1024,
         },
         timeout: 15000,
-      })
+      }) as any
 
       aiInsight = groqResponse.choices?.[0]?.message?.content || ''
     } catch (err) {
@@ -154,7 +154,7 @@ Tulis 3 paragraf insight: (1) gambaran umum, (2) pola & temuan menarik, (3) sara
   } else {
     aiInsight = `Selama periode ${formatDateNice(periodStartStr)} hingga ${formatDateNice(periodEndStr)}, Anda telah menginvestasikan total ${totalMinutes} menit (${(totalMinutes / 60).toFixed(1)} jam) dalam sesi fokus. Dari ${totalDaysInPeriod} hari dalam periode ini, Anda aktif selama ${activeDays} hari (${Math.round((activeDays / totalDaysInPeriod) * 100)}%), dengan rata-rata ${avgPerDay} menit per hari aktif.
 
-Hari paling produktif Anda adalah ${formatDateNice(longestDay.date)} dengan ${longestDay.minutes} menit fokus, sementara hari dengan durasi terendah adalah ${formatDateNice(shortestDay.date)} dengan ${shortestDay.minutes} menit. Konsistensi harian Anda menunjukkan komitmen yang baik terhadap produktivitas.
+Hari paling produktif Anda adalah ${longestDay ? formatDateNice(longestDay.date) : '-'} dengan ${longestDay?.minutes || 0} menit fokus, sementara hari dengan durasi terendah adalah ${shortestDay ? formatDateNice(shortestDay.date) : '-'} dengan ${shortestDay?.minutes || 0} menit. Konsistensi harian Anda menunjukkan komitmen yang baik terhadap produktivitas.
 
 Untuk meningkatkan produktivitas, cobalah untuk menjaga konsistensi sesi fokus setiap hari, bahkan di hari-hari yang biasanya kurang produktif. Targetkan minimal 60 menit sesi fokus per hari dan secara bertahap tingkatkan sesuai kapasitas Anda.`
   }

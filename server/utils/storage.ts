@@ -16,24 +16,28 @@ export const uploadReportPDF = async (userId: string, filename: string, body: Bu
   const supabase = getSupabase()
   const path = `${userId}/${Date.now()}_${filename.replace(/\s+/g, '_')}.pdf`
 
-  const { data, error } = await supabase.storage
-    .from('files')
-    .upload(path, body, {
-      contentType: 'application/pdf',
-      upsert: true
-    })
+  try {
+    const { error } = await supabase.storage
+      .from('files')
+      .upload(path, body, {
+        contentType: 'application/pdf',
+        upsert: true
+      })
 
-  if (error) {
-    console.error('Supabase Storage Upload Error:', error)
-    throw new Error(`Upload failed: ${error.message}`)
+    if (error) {
+      console.error('Supabase Storage Upload Error:', error)
+      throw new Error(`Upload failed: ${error.message}`)
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('files')
+      .getPublicUrl(path)
+
+    return publicUrl
+  } catch (err) {
+    console.error('Upload error:', err)
+    throw err
   }
-
-  // Get public URL
-  const { data: { publicUrl } } = supabase.storage
-    .from('files')
-    .getPublicUrl(path)
-
-  return publicUrl
 }
 
 export const deleteReportPDF = async (url: string) => {
@@ -46,6 +50,7 @@ export const deleteReportPDF = async (url: string) => {
     const parts = url.split('/storage/v1/object/public/files/')
     if (parts.length < 2) return
     const path = parts[1]
+    if (!path) return
 
     const { error } = await supabase.storage
       .from('files')
