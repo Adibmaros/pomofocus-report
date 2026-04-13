@@ -1,190 +1,313 @@
 <template>
-  <div class="app-wrapper">
-    <!-- Ambient background effects -->
-    <div class="bg-effects">
-      <div class="bg-orb bg-orb-1"></div>
-      <div class="bg-orb bg-orb-2"></div>
-      <div class="bg-orb bg-orb-3"></div>
-      <div class="bg-grid"></div>
+  <div data-theme="focusreport" class="min-h-screen bg-base-100 flex flex-col relative overflow-hidden font-sans">
+    <!-- Ambient blobs -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      <div class="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[100px]" style="animation: float 20s ease-in-out infinite;"></div>
+      <div class="absolute -bottom-32 -left-32 w-[400px] h-[400px] rounded-full bg-accent/5 blur-[100px]" style="animation: float 25s ease-in-out infinite reverse;"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full bg-secondary/30 blur-[120px]"></div>
     </div>
 
-    <main class="main-content">
-      <!-- Header -->
-      <header class="hero">
-        <div class="hero-badge">
-          <span class="hero-badge-dot"></span>
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col items-center justify-center px-4 py-8 relative z-10 max-w-3xl mx-auto w-full">
+
+      <!-- Hero -->
+      <header class="text-center mb-10 animate-fade-in-up">
+        <div class="badge badge-primary badge-outline gap-2 mb-5 text-xs font-semibold tracking-wide">
+          <span class="w-1.5 h-1.5 rounded-full bg-primary" style="animation: pulse-soft 2s ease-in-out infinite;"></span>
           CSV → PDF Report
         </div>
-        <h1 class="hero-title">
-          <span class="text-gradient">FocusReport</span>
+        <h1 class="text-5xl sm:text-6xl font-extrabold tracking-tight mb-4">
+          <span class="bg-gradient-to-r from-primary via-purple-500 to-accent bg-clip-text text-transparent">FocusReport</span>
         </h1>
-        <p class="hero-subtitle">
-          Upload data Pomofocus CSV kamu, dapatkan laporan produktivitas PDF yang informatif. Gratis, tanpa login.
+        <p class="text-base-content/60 text-lg max-w-md mx-auto leading-relaxed">
+          Upload data Pomofocus CSV kamu, dapatkan laporan produktivitas PDF yang informatif. <strong class="text-base-content/80">Gratis, tanpa login.</strong>
         </p>
+        <!-- Guide trigger -->
+        <button class="btn btn-ghost btn-sm gap-2 mt-4 text-primary hover:bg-primary/10 border-primary/20" @click="showGuide = true" id="guide-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-4 h-4"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+          Pelajari alur aplikasi
+        </button>
       </header>
 
       <!-- Upload Section -->
-      <section class="upload-section" v-if="!isProcessing && !reportReady">
+      <section class="w-full animate-fade-in-up-delay-1" v-if="!isProcessing && !reportReady">
         <div
-          class="upload-zone"
-          :class="{ 'drag-over': isDragging }"
+          class="border-2 border-dashed rounded-2xl p-10 sm:p-14 text-center cursor-pointer transition-all duration-300 group"
+          :class="isDragging
+            ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10 scale-[1.01]'
+            : 'border-base-300 bg-base-100/80 hover:border-primary/50 hover:bg-primary/[0.02] hover:shadow-md'"
           @dragover.prevent="isDragging = true"
           @dragleave="isDragging = false"
           @drop.prevent="handleDrop"
           @click="triggerFileInput"
           id="upload-zone"
         >
-          <input
-            type="file"
-            ref="fileInput"
-            accept=".csv"
-            @change="handleFileSelect"
-            style="display: none"
-            id="csv-file-input"
-          />
-          <div class="upload-zone-visual">
-            <div class="upload-icon-wrapper">
-              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
-            </div>
-            <div class="upload-zone-text">
-              <p class="upload-zone-title">Drag & drop file CSV di sini</p>
-              <p class="upload-zone-subtitle">atau klik untuk memilih file</p>
-            </div>
-            <div class="upload-zone-formats">
-              <span class="format-tag">.CSV</span>
-              <span class="format-info">Pomofocus export format</span>
-            </div>
+          <input type="file" ref="fileInput" accept=".csv" @change="handleFileSelect" class="hidden" id="csv-file-input" />
+
+          <div class="mx-auto w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center mb-5 transition-all group-hover:bg-primary/15 group-hover:scale-105">
+            <svg class="w-7 h-7 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+          </div>
+
+          <p class="text-lg font-semibold text-base-content mb-1">Drag & drop file CSV di sini</p>
+          <p class="text-sm text-base-content/50 mb-5">atau klik untuk memilih file</p>
+
+          <div class="flex items-center justify-center gap-3">
+            <span class="badge badge-primary badge-sm font-bold">.CSV</span>
+            <span class="text-xs text-base-content/40">Pomofocus export format</span>
           </div>
         </div>
 
-        <!-- Info cards -->
-        <div class="info-grid">
-          <div class="info-card">
-            <div class="info-card-icon">📊</div>
-            <h3 class="info-card-title">Statistik Lengkap</h3>
-            <p class="info-card-desc">Total waktu, hari aktif, rata-rata, dan distribusi proyek dalam satu laporan.</p>
+        <!-- Feature cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6 animate-fade-in-up-delay-2">
+          <div class="card bg-base-100 border border-base-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+            <div class="card-body p-5">
+              <div class="text-2xl mb-1">📊</div>
+              <h3 class="font-semibold text-sm text-base-content">Statistik Lengkap</h3>
+              <p class="text-xs text-base-content/50 leading-relaxed">Total waktu, hari aktif, rata-rata, dan distribusi proyek.</p>
+            </div>
           </div>
-          <div class="info-card">
-            <div class="info-card-icon">📈</div>
-            <h3 class="info-card-title">Grafik Visual</h3>
-            <p class="info-card-desc">Bar chart durasi per hari dan breakdown proyek untuk visualisasi data yang jelas.</p>
+          <div class="card bg-base-100 border border-base-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+            <div class="card-body p-5">
+              <div class="text-2xl mb-1">📈</div>
+              <h3 class="font-semibold text-sm text-base-content">Grafik Visual</h3>
+              <p class="text-xs text-base-content/50 leading-relaxed">Bar chart durasi per hari dan breakdown proyek.</p>
+            </div>
           </div>
-          <div class="info-card">
-            <div class="info-card-icon">🤖</div>
-            <h3 class="info-card-title">AI Insight</h3>
-            <p class="info-card-desc">Analisis otomatis dengan AI untuk menemukan pola produktivitas dan saran peningkatan.</p>
+          <div class="card bg-base-100 border border-base-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+            <div class="card-body p-5">
+              <div class="text-2xl mb-1">🤖</div>
+              <h3 class="font-semibold text-sm text-base-content">AI Insight</h3>
+              <p class="text-xs text-base-content/50 leading-relaxed">Analisis produktivitas & saran peningkatan otomatis.</p>
+            </div>
           </div>
         </div>
       </section>
 
       <!-- Processing State -->
-      <section class="processing-section" v-if="isProcessing">
-        <div class="processing-card">
-          <div class="processing-spinner">
-            <div class="spinner-ring"></div>
-            <div class="spinner-ring spinner-ring-2"></div>
-            <div class="spinner-dot"></div>
+      <section class="w-full" v-if="isProcessing">
+        <div class="card bg-base-100 border border-base-300 shadow-lg">
+          <div class="card-body items-center text-center py-14">
+            <!-- Spinner -->
+            <div class="relative w-16 h-16 mb-6">
+              <div class="absolute inset-0 border-[3px] border-transparent border-t-primary rounded-full" style="animation: spin 1s linear infinite;"></div>
+              <div class="absolute inset-2 border-[3px] border-transparent border-t-accent rounded-full" style="animation: spin 1.5s linear infinite reverse;"></div>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-2.5 h-2.5 bg-primary rounded-full" style="animation: pulse-soft 1.5s ease-in-out infinite;"></div>
+              </div>
+            </div>
+
+            <h2 class="text-xl font-bold text-base-content">Memproses Data...</h2>
+            <p class="text-sm text-base-content/50 mb-6">{{ processingMessage }}</p>
+
+            <!-- Steps -->
+            <ul class="steps steps-horizontal text-xs">
+              <li class="step" :class="currentStep >= 1 ? 'step-primary' : ''">Parsing</li>
+              <li class="step" :class="currentStep >= 2 ? 'step-primary' : ''">Statistik</li>
+              <li class="step" :class="currentStep >= 3 ? 'step-primary' : ''">PDF</li>
+            </ul>
           </div>
-          <h2 class="processing-title">Memproses Data...</h2>
-          <p class="processing-subtitle">{{ processingMessage }}</p>
-          <div class="processing-steps">
-            <div class="step" :class="{ active: currentStep >= 1, done: currentStep > 1 }">
-              <div class="step-indicator">
-                <svg v-if="currentStep > 1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
-                <span v-else>1</span>
-              </div>
-              <span>Parsing CSV</span>
+        </div>
+      </section>
+
+      <!-- Result -->
+      <section class="w-full animate-fade-in-up" v-if="reportReady && !isProcessing">
+        <div class="card bg-base-100 border border-base-300 shadow-lg">
+          <div class="card-body items-center text-center py-12">
+            <div class="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
             </div>
-            <div class="step" :class="{ active: currentStep >= 2, done: currentStep > 2 }">
-              <div class="step-indicator">
-                <svg v-if="currentStep > 2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
-                <span v-else>2</span>
+
+            <h2 class="text-2xl font-bold text-base-content">Laporan Siap! 🎉</h2>
+            <p class="text-sm text-base-content/50 mb-6">PDF laporan produktivitas kamu sudah berhasil dibuat.</p>
+
+            <!-- Stats pill -->
+            <div class="flex flex-wrap justify-center gap-2 mb-8" v-if="reportStats">
+              <div class="badge badge-lg badge-outline gap-2 py-3" v-for="stat in statPills" :key="stat.label">
+                <span class="text-base-content/40 text-xs">{{ stat.label }}</span>
+                <span class="font-bold text-primary text-sm">{{ stat.value }}</span>
               </div>
-              <span>Menghitung Statistik</span>
             </div>
-            <div class="step" :class="{ active: currentStep >= 3, done: currentStep > 3 }">
-              <div class="step-indicator">
-                <svg v-if="currentStep > 3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
-                <span v-else>3</span>
-              </div>
-              <span>Membuat PDF</span>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button class="btn btn-primary gap-2 shadow-md shadow-primary/20" @click="downloadPDF" id="download-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Download PDF
+              </button>
+              <button class="btn btn-ghost gap-2" @click="resetState" id="reset-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+                  <polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                </svg>
+                Upload Lagi
+              </button>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Result Section -->
-      <section class="result-section" v-if="reportReady && !isProcessing">
-        <div class="result-card">
-          <div class="result-icon-wrapper">
-            <svg class="result-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-          </div>
-          <h2 class="result-title">Laporan Siap!</h2>
-          <p class="result-subtitle">PDF laporan produktivitas kamu sudah berhasil dibuat.</p>
-
-          <!-- Stats preview -->
-          <div class="stats-preview" v-if="reportStats">
-            <div class="stat-pill">
-              <span class="stat-pill-label">Total</span>
-              <span class="stat-pill-value">{{ formatDuration(reportStats.totalMinutes) }}</span>
-            </div>
-            <div class="stat-pill">
-              <span class="stat-pill-label">Hari Aktif</span>
-              <span class="stat-pill-value">{{ reportStats.activeDays }} hari</span>
-            </div>
-            <div class="stat-pill">
-              <span class="stat-pill-label">Rata-rata</span>
-              <span class="stat-pill-value">{{ formatDuration(reportStats.avgPerDay) }}/hari</span>
-            </div>
-            <div class="stat-pill" v-if="reportStats.projectCount > 1">
-              <span class="stat-pill-label">Proyek</span>
-              <span class="stat-pill-value">{{ reportStats.projectCount }} proyek</span>
-            </div>
-          </div>
-
-          <div class="result-actions">
-            <button class="btn btn-primary btn-lg" @click="downloadPDF" id="download-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              Download PDF
-            </button>
-            <button class="btn btn-secondary" @click="resetState" id="reset-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-                <polyline points="1 4 1 10 7 10" />
-                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-              </svg>
-              Upload Lagi
-            </button>
-          </div>
+      <!-- Error alert -->
+      <div class="toast toast-top toast-end z-50" v-if="errorMessage">
+        <div class="alert alert-error shadow-lg cursor-pointer" @click="errorMessage = ''">
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <span class="text-sm">{{ errorMessage }}</span>
         </div>
-      </section>
-
-      <!-- Error toast -->
-      <Transition name="toast">
-        <div class="toast toast-error" v-if="errorMessage" @click="errorMessage = ''">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
-          </svg>
-          {{ errorMessage }}
-        </div>
-      </Transition>
+      </div>
     </main>
 
     <!-- Footer -->
-    <footer class="app-footer">
-      <p>FocusReport — Dibuat dengan ❤️ untuk produktivitas</p>
+    <footer class="text-center py-6 text-xs text-base-content/30 relative z-10">
+      FocusReport — Dibuat dengan ❤️ untuk produktivitas
     </footer>
+
+    <!-- ===================================
+         Guide Modal
+         =================================== -->
+    <dialog class="modal" :class="{ 'modal-open': showGuide }" id="guide-modal">
+      <div class="modal-box max-w-2xl bg-base-100 p-0 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-primary to-purple-500 px-6 py-5 text-white">
+          <h3 class="font-bold text-lg">📖 Cara Menggunakan FocusReport</h3>
+          <p class="text-sm text-white/70 mt-1">Dari Pomofocus sampai PDF laporan dalam hitungan detik</p>
+        </div>
+
+        <!-- Steps -->
+        <div class="px-6 py-6 space-y-1 max-h-[65vh] overflow-y-auto">
+
+          <!-- Step 1 -->
+          <div class="collapse collapse-arrow bg-base-200/50 rounded-xl">
+            <input type="radio" name="guide-accordion" checked />
+            <div class="collapse-title font-semibold flex items-center gap-3">
+              <div class="badge badge-primary badge-sm font-bold w-7 h-7 p-0 text-xs">1</div>
+              Gunakan Pomofocus untuk Sesi Fokus
+            </div>
+            <div class="collapse-content text-sm text-base-content/70 leading-relaxed">
+              <div class="pl-10 space-y-2">
+                <p>Buka <a href="https://pomofocus.io" target="_blank" class="link link-primary font-medium">pomofocus.io</a> dan mulai sesi Pomodoro kamu seperti biasa.</p>
+                <p>Setiap sesi yang kamu jalankan akan tercatat secara otomatis — termasuk <strong>tanggal</strong>, <strong>durasi</strong>, dan <strong>proyek</strong> yang dipilih.</p>
+                <div class="bg-base-200 rounded-lg p-3 mt-2">
+                  <p class="text-xs text-base-content/50">💡 <strong>Tips:</strong> Buat beberapa proyek di Pomofocus (misal: "Coding", "Belajar", "Menulis") agar laporan kamu lebih informatif.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="collapse collapse-arrow bg-base-200/50 rounded-xl">
+            <input type="radio" name="guide-accordion" />
+            <div class="collapse-title font-semibold flex items-center gap-3">
+              <div class="badge badge-primary badge-sm font-bold w-7 h-7 p-0 text-xs">2</div>
+              Export Data dari Pomofocus
+            </div>
+            <div class="collapse-content text-sm text-base-content/70 leading-relaxed">
+              <div class="pl-10 space-y-2">
+                <p>Setelah beberapa hari menggunakan Pomofocus, export data kamu:</p>
+                <ol class="list-decimal list-inside space-y-1.5 ml-1">
+                  <li>Klik menu <strong>Report</strong> di sidebar kiri Pomofocus</li>
+                  <li>Pilih rentang tanggal yang ingin di-export</li>
+                  <li>Klik tombol <strong>"Export as CSV"</strong> di bagian bawah</li>
+                  <li>File <code class="bg-base-300 px-1.5 py-0.5 rounded text-xs font-mono">.csv</code> akan terdownload otomatis</li>
+                </ol>
+                <div class="bg-base-200 rounded-lg p-3 mt-2">
+                  <p class="text-xs text-base-content/50">📁 File CSV berisi kolom: tanggal, durasi (menit), dan nama proyek.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="collapse collapse-arrow bg-base-200/50 rounded-xl">
+            <input type="radio" name="guide-accordion" />
+            <div class="collapse-title font-semibold flex items-center gap-3">
+              <div class="badge badge-primary badge-sm font-bold w-7 h-7 p-0 text-xs">3</div>
+              Upload CSV ke FocusReport
+            </div>
+            <div class="collapse-content text-sm text-base-content/70 leading-relaxed">
+              <div class="pl-10 space-y-2">
+                <p>Di halaman utama FocusReport:</p>
+                <ul class="list-disc list-inside space-y-1.5 ml-1">
+                  <li><strong>Drag & drop</strong> file CSV ke area upload, atau</li>
+                  <li><strong>Klik</strong> area upload untuk memilih file dari komputer</li>
+                </ul>
+                <p>Sistem akan otomatis mendeteksi kolom-kolom pada CSV kamu — tidak perlu konfigurasi manual.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="collapse collapse-arrow bg-base-200/50 rounded-xl">
+            <input type="radio" name="guide-accordion" />
+            <div class="collapse-title font-semibold flex items-center gap-3">
+              <div class="badge badge-primary badge-sm font-bold w-7 h-7 p-0 text-xs">4</div>
+              Proses & Generate Laporan
+            </div>
+            <div class="collapse-content text-sm text-base-content/70 leading-relaxed">
+              <div class="pl-10 space-y-2">
+                <p>Setelah upload, FocusReport secara otomatis akan:</p>
+                <div class="space-y-3 mt-2">
+                  <div class="flex gap-3 items-start">
+                    <div class="badge badge-outline badge-sm mt-0.5 shrink-0">a</div>
+                    <p><strong>Parsing CSV</strong> — Membaca dan memvalidasi data dari file</p>
+                  </div>
+                  <div class="flex gap-3 items-start">
+                    <div class="badge badge-outline badge-sm mt-0.5 shrink-0">b</div>
+                    <p><strong>Menghitung Statistik</strong> — Total waktu, hari aktif, rata-rata per hari, hari paling produktif, distribusi proyek</p>
+                  </div>
+                  <div class="flex gap-3 items-start">
+                    <div class="badge badge-outline badge-sm mt-0.5 shrink-0">c</div>
+                    <p><strong>AI Insight</strong> — Analisis pola produktivitas & saran peningkatan (jika tersedia)</p>
+                  </div>
+                  <div class="flex gap-3 items-start">
+                    <div class="badge badge-outline badge-sm mt-0.5 shrink-0">d</div>
+                    <p><strong>Generate PDF</strong> — Menyusun semua data ke dalam laporan PDF profesional</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="collapse collapse-arrow bg-base-200/50 rounded-xl">
+            <input type="radio" name="guide-accordion" />
+            <div class="collapse-title font-semibold flex items-center gap-3">
+              <div class="badge badge-primary badge-sm font-bold w-7 h-7 p-0 text-xs">5</div>
+              Download Laporan PDF
+            </div>
+            <div class="collapse-content text-sm text-base-content/70 leading-relaxed">
+              <div class="pl-10 space-y-2">
+                <p>Setelah proses selesai, kamu bisa langsung klik <strong>"Download PDF"</strong> untuk menyimpan laporan.</p>
+                <p>Laporan PDF berisi:</p>
+                <ul class="list-disc list-inside space-y-1 ml-1">
+                  <li>📊 Ringkasan statistik (Total waktu, hari aktif, rata-rata)</li>
+                  <li>📈 Grafik bar chart durasi per hari</li>
+                  <li>📋 Tabel detail data harian</li>
+                  <li>🧩 Distribusi proyek (jika ada lebih dari 1 proyek)</li>
+                  <li>🤖 Analisis & insight AI</li>
+                </ul>
+                <div class="bg-base-200 rounded-lg p-3 mt-2">
+                  <p class="text-xs text-base-content/50">🔄 Klik <strong>"Upload Lagi"</strong> untuk memproses file CSV yang berbeda.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t border-base-300 flex justify-between items-center">
+          <p class="text-xs text-base-content/40">Data kamu diproses di server dan tidak disimpan.</p>
+          <button class="btn btn-primary btn-sm" @click="showGuide = false" id="close-guide-btn">Mengerti!</button>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop bg-black/30" @click="showGuide = false">
+        <button>close</button>
+      </form>
+    </dialog>
+
   </div>
 </template>
 
@@ -198,10 +321,23 @@ const reportReady = ref(false)
 const errorMessage = ref('')
 const processingMessage = ref('')
 const currentStep = ref(0)
+const showGuide = ref(false)
 
 const pdfBase64 = ref('')
 const pdfFilename = ref('')
 const reportStats = ref<any>(null)
+
+const statPills = computed(() => {
+  if (!reportStats.value) return []
+  const stats = []
+  stats.push({ label: 'Total', value: formatDuration(reportStats.value.totalMinutes) })
+  stats.push({ label: 'Hari Aktif', value: `${reportStats.value.activeDays} hari` })
+  stats.push({ label: 'Rata-rata', value: `${formatDuration(reportStats.value.avgPerDay)}/hari` })
+  if (reportStats.value.projectCount > 1) {
+    stats.push({ label: 'Proyek', value: `${reportStats.value.projectCount} proyek` })
+  }
+  return stats
+})
 
 function triggerFileInput() {
   fileInput.value?.click()
@@ -241,7 +377,6 @@ async function processFile(file: File) {
   errorMessage.value = ''
 
   try {
-    // Step 1: Parse CSV
     const text = await file.text()
     const parsed = Papa.parse(text, {
       header: true,
@@ -252,18 +387,16 @@ async function processFile(file: File) {
       throw new Error('File CSV kosong atau format tidak dikenali.')
     }
 
-    // Auto-detect columns
     const firstRow = parsed.data[0] as any
     const headers = Object.keys(firstRow)
 
-    // Try to map columns
-    const dateCol = headers.find((h) => /date|tanggal|hari/i.test(h)) || headers[0]
-    const minutesCol = headers.find((h) => /minute|menit|duration|durasi|time|waktu/i.test(h)) || headers[1]
+    const dateCol = headers.find((h) => /date|tanggal|hari/i.test(h)) || headers[0] || 'date'
+    const minutesCol = headers.find((h) => /minute|menit|duration|durasi|time|waktu/i.test(h)) || headers[1] || 'minutes'
     const projectCol = headers.find((h) => /project|proyek|task|tugas|category|kategori/i.test(h))
 
     const data = parsed.data.map((row: any) => ({
-      date: String(row[dateCol] || '').trim(),
-      minutes: parseInt(String(row[minutesCol] || '0').replace(/[^0-9]/g, '')) || 0,
+      date: String(row[dateCol as string] || '').trim(),
+      minutes: parseInt(String(row[minutesCol as string] || '0').replace(/[^0-9]/g, '')) || 0,
       project: projectCol ? String(row[projectCol] || '').trim() : '',
     })).filter((r: any) => r.date && r.minutes > 0)
 
@@ -271,7 +404,6 @@ async function processFile(file: File) {
       throw new Error('Tidak ada data valid ditemukan. Pastikan CSV memiliki kolom tanggal dan menit/durasi.')
     }
 
-    // Step 2: Send to server
     await new Promise((r) => setTimeout(r, 500))
     currentStep.value = 2
     processingMessage.value = 'Menghitung statistik dan membuat analisis...'
@@ -335,557 +467,3 @@ function resetState() {
   if (fileInput.value) fileInput.value.value = ''
 }
 </script>
-
-<style scoped>
-/* ===================================
-   Layout
-   =================================== */
-.app-wrapper {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-}
-
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 1.5rem;
-  position: relative;
-  z-index: 1;
-  max-width: 800px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-/* ===================================
-   Background Effects
-   =================================== */
-.bg-effects {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.bg-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.4;
-}
-
-.bg-orb-1 {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(124, 93, 250, 0.15), transparent 70%);
-  top: -150px;
-  right: -100px;
-  animation: float 20s ease-in-out infinite;
-}
-
-.bg-orb-2 {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(192, 132, 252, 0.1), transparent 70%);
-  bottom: -100px;
-  left: -100px;
-  animation: float 25s ease-in-out infinite reverse;
-}
-
-.bg-orb-3 {
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.08), transparent 70%);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation: float 30s ease-in-out infinite;
-}
-
-.bg-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%);
-}
-
-/* ===================================
-   Hero
-   =================================== */
-.hero {
-  text-align: center;
-  margin-bottom: 3rem;
-  animation: fadeInUp 0.6s ease forwards;
-}
-
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 1rem;
-  background: rgba(124, 93, 250, 0.1);
-  border: 1px solid rgba(124, 93, 250, 0.2);
-  border-radius: 9999px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--accent-light);
-  margin-bottom: 1.5rem;
-  letter-spacing: 0.02em;
-}
-
-.hero-badge-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  animation: pulse 2s ease-in-out infinite;
-}
-
-.hero-title {
-  font-size: 3.5rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  margin-bottom: 1rem;
-  line-height: 1.1;
-}
-
-.hero-subtitle {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-  max-width: 480px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-
-/* ===================================
-   Upload Zone
-   =================================== */
-.upload-section {
-  width: 100%;
-  animation: fadeInUp 0.7s ease forwards;
-  animation-delay: 0.1s;
-  opacity: 0;
-}
-
-.upload-zone {
-  border: 2px dashed rgba(124, 93, 250, 0.25);
-  border-radius: var(--radius-xl);
-  padding: 3.5rem 2rem;
-  text-align: center;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  background: rgba(22, 22, 31, 0.6);
-  backdrop-filter: blur(10px);
-  position: relative;
-  overflow: hidden;
-}
-
-.upload-zone::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(124, 93, 250, 0.05), transparent 70%);
-  transition: opacity var(--transition-normal);
-}
-
-.upload-zone:hover,
-.upload-zone.drag-over {
-  border-color: var(--accent);
-  background: rgba(124, 93, 250, 0.08);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(124, 93, 250, 0.15);
-}
-
-.upload-zone:hover::before,
-.upload-zone.drag-over::before {
-  opacity: 1;
-}
-
-.upload-zone-visual {
-  position: relative;
-  z-index: 1;
-}
-
-.upload-icon-wrapper {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto 1.5rem;
-  border-radius: var(--radius-lg);
-  background: rgba(124, 93, 250, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--transition-normal);
-}
-
-.upload-zone:hover .upload-icon-wrapper {
-  background: rgba(124, 93, 250, 0.2);
-  transform: scale(1.05);
-}
-
-.upload-icon {
-  width: 32px;
-  height: 32px;
-  color: var(--accent-light);
-}
-
-.upload-zone-text {
-  margin-bottom: 1.5rem;
-}
-
-.upload-zone-title {
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
-}
-
-.upload-zone-subtitle {
-  font-size: 0.9rem;
-  color: var(--text-tertiary);
-}
-
-.upload-zone-formats {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-}
-
-.format-tag {
-  padding: 0.25rem 0.75rem;
-  background: rgba(124, 93, 250, 0.15);
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--accent-light);
-  letter-spacing: 0.05em;
-}
-
-.format-info {
-  font-size: 0.8rem;
-  color: var(--text-tertiary);
-}
-
-/* ===================================
-   Info Cards
-   =================================== */
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.info-card {
-  background: rgba(22, 22, 31, 0.6);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  transition: all var(--transition-normal);
-}
-
-.info-card:hover {
-  border-color: var(--border-color-hover);
-  transform: translateY(-2px);
-}
-
-.info-card-icon {
-  font-size: 1.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.info-card-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
-}
-
-.info-card-desc {
-  font-size: 0.8rem;
-  color: var(--text-tertiary);
-  line-height: 1.5;
-}
-
-/* ===================================
-   Processing
-   =================================== */
-.processing-section {
-  width: 100%;
-  animation: fadeIn 0.4s ease forwards;
-}
-
-.processing-card {
-  background: rgba(22, 22, 31, 0.7);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl);
-  padding: 3rem 2rem;
-  text-align: center;
-}
-
-.processing-spinner {
-  width: 80px;
-  height: 80px;
-  position: relative;
-  margin: 0 auto 2rem;
-}
-
-.spinner-ring {
-  position: absolute;
-  inset: 0;
-  border: 3px solid transparent;
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.spinner-ring-2 {
-  inset: 8px;
-  border-top-color: var(--accent-light);
-  animation-direction: reverse;
-  animation-duration: 1.5s;
-}
-
-.spinner-dot {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
-  background: var(--accent);
-  border-radius: 50%;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-.processing-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.processing-subtitle {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  margin-bottom: 2rem;
-}
-
-.processing-steps {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-}
-
-.step {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-tertiary);
-  font-size: 0.85rem;
-  transition: all var(--transition-normal);
-}
-
-.step.active {
-  color: var(--accent-light);
-}
-
-.step.done {
-  color: var(--success);
-}
-
-.step-indicator {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid currentColor;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.step.done .step-indicator {
-  background: var(--success);
-  border-color: var(--success);
-  color: white;
-}
-
-.step-indicator svg {
-  width: 14px;
-  height: 14px;
-}
-
-/* ===================================
-   Result
-   =================================== */
-.result-section {
-  width: 100%;
-  animation: fadeInUp 0.5s ease forwards;
-}
-
-.result-card {
-  background: rgba(22, 22, 31, 0.7);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl);
-  padding: 3rem 2rem;
-  text-align: center;
-}
-
-.result-icon-wrapper {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 1.5rem;
-  border-radius: 50%;
-  background: var(--success-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: glow-success 2s ease-in-out infinite;
-}
-
-@keyframes glow-success {
-  0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.1); }
-  50% { box-shadow: 0 0 40px rgba(34, 197, 94, 0.25); }
-}
-
-.result-icon {
-  width: 36px;
-  height: 36px;
-  color: var(--success);
-}
-
-.result-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.result-subtitle {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  margin-bottom: 2rem;
-}
-
-/* Stats Preview */
-.stats-preview {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-}
-
-.stat-pill {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: rgba(124, 93, 250, 0.08);
-  border: 1px solid rgba(124, 93, 250, 0.15);
-  border-radius: var(--radius-full);
-}
-
-.stat-pill-label {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  font-weight: 500;
-}
-
-.stat-pill-value {
-  font-size: 0.85rem;
-  color: var(--accent-light);
-  font-weight: 700;
-}
-
-.result-actions {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-}
-
-/* ===================================
-   Toast
-   =================================== */
-.toast-enter-active {
-  animation: slideInRight 0.3s ease forwards;
-}
-
-.toast-leave-active {
-  animation: slideOutRight 0.3s ease forwards;
-}
-
-@keyframes slideOutRight {
-  to {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-}
-
-/* ===================================
-   Footer
-   =================================== */
-.app-footer {
-  text-align: center;
-  padding: 1.5rem;
-  color: var(--text-tertiary);
-  font-size: 0.8rem;
-  position: relative;
-  z-index: 1;
-}
-
-/* ===================================
-   Responsive
-   =================================== */
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 2.5rem;
-  }
-
-  .hero-subtitle {
-    font-size: 0.95rem;
-  }
-
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .processing-steps {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .result-actions {
-    flex-direction: column;
-  }
-
-  .stats-preview {
-    flex-direction: column;
-    align-items: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-title {
-    font-size: 2rem;
-  }
-
-  .upload-zone {
-    padding: 2.5rem 1.5rem;
-  }
-}
-</style>

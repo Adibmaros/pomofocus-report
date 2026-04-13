@@ -1,3 +1,5 @@
+import tailwindcss from '@tailwindcss/vite'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
@@ -16,7 +18,7 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: 'Upload file CSV Pomofocus, dapatkan laporan produktivitas PDF yang informatif dan siap download. Gratis, tanpa login.' },
-        { name: 'theme-color', content: '#0a0a0f' },
+        { name: 'theme-color', content: '#FAFAFE' },
       ],
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -29,6 +31,7 @@ export default defineNuxtConfig({
   css: ['~~/assets/css/main.css'],
 
   vite: {
+    plugins: [tailwindcss() as any],
     optimizeDeps: {
       include: ['papaparse'],
     },
