@@ -1,78 +1,62 @@
-# FocusReport 📊
-**SaaS Penjana Laporan Produktivitas Otomatis untuk Pengguna Pomofocus.**
+# FocusReport
 
-FocusReport adalah platform SaaS modern yang membantu pengguna [Pomofocus](https://pomofocus.io/) mengubah data CSV mentah mereka menjadi laporan aktivitas profesional yang indah, lengkap dengan analisis statistik dan insight berbasis AI.
+> Upload file CSV Pomofocus, dapatkan laporan produktivitas PDF yang informatif dan siap download. Gratis, tanpa login.
 
-## ✨ Fitur Utama
-- **📊 Pemrosesan CSV Cepat**: Unggah file CSV hasil ekspor Pomofocus dan lihat hasilnya secara instan.
-- **🖼️ Dashboard Produktivitas**: Ringkasan total waktu, hari aktif, rata-rata harian, dan grafik distribusi mingguan.
-- **🤖 AI Insights**: Analisis pola kerja dan saran actionable menggunakan **Groq AI (Llama-3)**.
-- **📄 Laporan PDF Profesional**: Unduh laporan dalam format PDF yang dirancang secara profesional (mirip standar korporat).
-- **☁️ Cloud Storage Integration**: PDF laporan Anda disimpan secara otomatis di **Supabase Storage**.
-- **🔑 Google OAuth**: Login cepat dan aman tanpa perlu mengelola kata sandi.
-- **👑 Subscription System**: Model bisnis Freemium (Free vs Pro) yang terintegrasi di tingkat database.
+## Fitur
 
-## 🛠️ Stack Teknologi
-- **Frontend**: Nuxt 4, Vue.js 3, Vanilla CSS (Premium & Minimalist UI).
-- **Backend/Nitro**: Nuxt Server Routes (TypeScript).
-- **Database**: PostgreSQL (via Supabase).
-- **ORM**: Prisma.
-- **Auth**: `nuxt-auth-utils` (Session-based).
-- **AI Engine**: Groq SDK (Llama-3.3-70b).
-- **PDF Generation**: jsPDF + jspdf-autotable.
-- **Storage**: Supabase Storage buckets.
+- **Upload CSV** — Drag & drop atau klik untuk upload file CSV dari Pomofocus
+- **Auto-detect kolom** — Otomatis mengenali kolom tanggal, durasi, dan proyek
+- **Statistik lengkap** — Total waktu, hari aktif, rata-rata per hari, distribusi proyek
+- **Grafik visual** — Bar chart durasi per hari dalam PDF
+- **AI Insight** — Analisis produktivitas dengan AI (opsional, butuh Groq API key)
+- **Download PDF** — Laporan siap download dalam format PDF
 
-## 🚀 Setup Proyek
+## Cara Pakai
 
-### 1. Prasyarat
-- Node.js versi terbaru (LTS direkomendasikan).
-- Database PostgreSQL (Disarankan menggunakan Supabase).
+1. Buka aplikasi
+2. Upload file CSV dari Pomofocus
+3. Tunggu proses selesai
+4. Download PDF laporan
 
-### 2. Variabel Lingkungan (.env)
-Buat file `.env` di direktori akar dan isi dengan konfigurasi berikut:
+## Setup Development
 
-```env
-# Database
-DATABASE_URL="postgresql://user:password@host:port/dbname"
-DIRECT_URL="postgresql://user:password@host:port/dbname"
-
-# Nuxt Auth
-NUXT_SESSION_PASSWORD="perlu-minimal-32-karakter-acak"
-
-# Google OAuth
-NUXT_OAUTH_GOOGLE_CLIENT_ID="your-client-id"
-NUXT_OAUTH_GOOGLE_CLIENT_SECRET="your-client-secret"
-
-# AI
-GROQ_API_KEY="your-groq-api-key"
-
-# Supabase Storage
-SUPABASE_URL="https://your-project.supabase.co"
-SUPABASE_SERVICE_KEY="your-service-role-key"
-```
-
-### 3. Instalasi & Jalankan
 ```bash
-# Instal dependensi
+# Install dependencies
 npm install
 
-# Setup database (Prisma)
-npx prisma generate
-npx prisma db push
+# Copy environment file
+cp .env.example .env
 
-# Jalankan mode pengembangan
+# (Opsional) Isi GROQ_API_KEY untuk fitur AI insight
+
+# Jalankan dev server
 npm run dev
 ```
 
-## 📂 Struktur Folder
-- `app/pages`: Routing dan logika halaman (Vue).
-- `app/components`: Komponen UI yang dapat digunakan kembali.
-- `server/api`: Titik akhir Nitro API (CRUD, Generate PDF, Auth).
-- `server/utils`: Utility server (Prisma singleton, Storage helper, PDF builder).
-- `prisma`: Skema database dan migrasi.
-- `public`: Aset statis dan file contoh (CSV/PDF).
+## Format CSV
 
-## 📄 Lisensi
-Proyek ini dilisensikan di bawah **GNU Affero General Public License v3.0 (AGPL-3.0)** - Lihat file [LICENSE](LICENSE) untuk detail lebih lanjut.
+File CSV harus memiliki minimal 2 kolom:
+- **date** — Tanggal (format: YYYY-MM-DD atau YYYYMMDD)
+- **minutes** — Durasi dalam menit
 
-Copyright © 2026 Adib Maros. Seluruh hak cipta dilindungi undang-undang.
+Kolom opsional:
+- **project** — Nama proyek/kategori
+
+Contoh:
+```csv
+date,minutes,project
+2026-04-01,45,Coding
+2026-04-02,60,Reading
+2026-04-03,30,Writing
+```
+
+## Tech Stack
+
+- **Framework**: Nuxt 4 (Vue 3)
+- **PDF**: jsPDF + jspdf-autotable
+- **CSV Parser**: PapaParse
+- **AI** (opsional): Groq API (Llama 3.3 70B)
+
+## License
+
+GPL-3.0

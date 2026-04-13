@@ -1,530 +1,891 @@
 <template>
-  <div class="landing" id="landing-page">
-    <!-- Hero Section -->
-    <section class="hero" id="hero-section">
-      <div class="hero-bg">
-        <div class="hero-grid"></div>
-        <div class="hero-glow"></div>
-      </div>
-      <div class="container hero-content">
-        <div class="hero-badge animate-fade-in-up">
-          <span class="badge badge-accent">🚀 Open Source</span>
-          <span class="hero-badge-text">AGPLv3 Licensed</span>
+  <div class="app-wrapper">
+    <!-- Ambient background effects -->
+    <div class="bg-effects">
+      <div class="bg-orb bg-orb-1"></div>
+      <div class="bg-orb bg-orb-2"></div>
+      <div class="bg-orb bg-orb-3"></div>
+      <div class="bg-grid"></div>
+    </div>
+
+    <main class="main-content">
+      <!-- Header -->
+      <header class="hero">
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          CSV → PDF Report
         </div>
-        <h1 class="hero-title animate-fade-in-up" style="animation-delay: 0.1s">
-          Turn Your Pomodoro Sessions<br />
-          Into <span class="text-gradient">Powerful Insights</span>
+        <h1 class="hero-title">
+          <span class="text-gradient">FocusReport</span>
         </h1>
-        <p class="hero-desc animate-fade-in-up" style="animation-delay: 0.2s">
-          Upload your Pomofocus CSV, get a beautiful PDF report with statistics,
-          charts, and AI-powered insights — all in under 30 seconds.
+        <p class="hero-subtitle">
+          Upload data Pomofocus CSV kamu, dapatkan laporan produktivitas PDF yang informatif. Gratis, tanpa login.
         </p>
-        <div class="hero-actions animate-fade-in-up" style="animation-delay: 0.3s">
-          <NuxtLink to="/auth/register" class="btn btn-primary btn-lg" id="hero-cta">
-            Get Started Free →
-          </NuxtLink>
-          <NuxtLink to="/pricing" class="btn btn-secondary btn-lg" id="hero-pricing">
-            View Pricing
-          </NuxtLink>
-        </div>
+      </header>
 
-        <div class="hero-stats animate-fade-in-up" style="animation-delay: 0.4s">
-          <div class="hero-stat">
-            <span class="hero-stat-value">3</span>
-            <span class="hero-stat-label">Simple Steps</span>
-          </div>
-          <div class="hero-stat-divider"></div>
-          <div class="hero-stat">
-            <span class="hero-stat-value">&lt;30s</span>
-            <span class="hero-stat-label">Time to PDF</span>
-          </div>
-          <div class="hero-stat-divider"></div>
-          <div class="hero-stat">
-            <span class="hero-stat-value">AI</span>
-            <span class="hero-stat-label">Powered Insights</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- How It Works -->
-    <section class="how-section" id="how-it-works">
-      <div class="container">
-        <h2 class="section-title text-center">
-          How It <span class="text-gradient">Works</span>
-        </h2>
-        <p class="section-desc text-center">
-          From raw CSV data to professional PDF report in 3 simple steps
-        </p>
-
-        <div class="steps-grid stagger-children">
-          <div class="step-card card card-glow" v-for="(step, i) in steps" :key="i">
-            <div class="step-number">{{ String(i + 1).padStart(2, '0') }}</div>
-            <div class="step-icon">{{ step.icon }}</div>
-            <h3 class="step-title">{{ step.title }}</h3>
-            <p class="step-desc">{{ step.desc }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Features -->
-    <section class="features-section" id="features">
-      <div class="container">
-        <h2 class="section-title text-center">
-          Everything You <span class="text-gradient">Need</span>
-        </h2>
-        <p class="section-desc text-center">
-          Powerful features to help you understand your productivity data
-        </p>
-
-        <div class="features-grid stagger-children">
-          <div class="feature-card card" v-for="(feature, i) in features" :key="i">
-            <div class="feature-icon">{{ feature.icon }}</div>
-            <h4 class="feature-title">{{ feature.title }}</h4>
-            <p class="feature-desc">{{ feature.desc }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Pricing -->
-    <section class="pricing-section" id="pricing">
-      <div class="container">
-        <h2 class="section-title text-center">
-          Simple <span class="text-gradient">Pricing</span>
-        </h2>
-        <p class="section-desc text-center">
-          Start free, upgrade when you need more
-        </p>
-
-        <div class="pricing-grid">
-          <div class="pricing-card card">
-            <div class="pricing-header">
-              <span class="badge badge-accent">Free</span>
-              <h3 class="pricing-price">Rp 0</h3>
-              <p class="pricing-period">forever</p>
+      <!-- Upload Section -->
+      <section class="upload-section" v-if="!isProcessing && !reportReady">
+        <div
+          class="upload-zone"
+          :class="{ 'drag-over': isDragging }"
+          @dragover.prevent="isDragging = true"
+          @dragleave="isDragging = false"
+          @drop.prevent="handleDrop"
+          @click="triggerFileInput"
+          id="upload-zone"
+        >
+          <input
+            type="file"
+            ref="fileInput"
+            accept=".csv"
+            @change="handleFileSelect"
+            style="display: none"
+            id="csv-file-input"
+          />
+          <div class="upload-zone-visual">
+            <div class="upload-icon-wrapper">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
             </div>
-            <ul class="pricing-features">
-              <li>✅ 3 reports / month</li>
-              <li>✅ AI insights (Bahasa Indonesia)</li>
-              <li>✅ Bar chart visualization</li>
-              <li>✅ PDF download</li>
-              <li>✅ 30-day PDF storage</li>
-              <li>❌ Excel export</li>
-              <li>❌ Share link</li>
-            </ul>
-            <NuxtLink to="/auth/register" class="btn btn-secondary" style="width: 100%">
-              Get Started
-            </NuxtLink>
-          </div>
-
-          <div class="pricing-card pricing-card-pro card card-glow">
-            <div class="pricing-popular">
-              <span class="badge badge-pro">⭐ Most Popular</span>
+            <div class="upload-zone-text">
+              <p class="upload-zone-title">Drag & drop file CSV di sini</p>
+              <p class="upload-zone-subtitle">atau klik untuk memilih file</p>
             </div>
-            <div class="pricing-header">
-              <span class="badge badge-pro">Pro</span>
-              <h3 class="pricing-price">Rp 29.000</h3>
-              <p class="pricing-period">/ month</p>
+            <div class="upload-zone-formats">
+              <span class="format-tag">.CSV</span>
+              <span class="format-info">Pomofocus export format</span>
             </div>
-            <ul class="pricing-features">
-              <li>✅ Unlimited reports</li>
-              <li>✅ AI insights (ID + English)</li>
-              <li>✅ Bar + pie + trend charts</li>
-              <li>✅ PDF + Excel export</li>
-              <li>✅ 1-year PDF storage</li>
-              <li>✅ Share link</li>
-              <li>✅ No watermark</li>
-              <li>✅ Priority support</li>
-            </ul>
-            <NuxtLink to="/auth/register" class="btn btn-primary" style="width: 100%">
-              Start Pro Trial →
-            </NuxtLink>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- CTA -->
-    <section class="cta-section" id="cta">
-      <div class="container">
-        <div class="cta-card card">
-          <h2 class="cta-title">
-            Ready to turn your Pomodoro data into<br />
-            <span class="text-gradient">actionable insights</span>?
-          </h2>
-          <p class="cta-desc">
-            Join hundreds of productive people who use FocusReport to understand their work patterns.
-          </p>
-          <NuxtLink to="/auth/register" class="btn btn-primary btn-lg" id="cta-button">
-            Get Started Free →
-          </NuxtLink>
+        <!-- Info cards -->
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-card-icon">📊</div>
+            <h3 class="info-card-title">Statistik Lengkap</h3>
+            <p class="info-card-desc">Total waktu, hari aktif, rata-rata, dan distribusi proyek dalam satu laporan.</p>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">📈</div>
+            <h3 class="info-card-title">Grafik Visual</h3>
+            <p class="info-card-desc">Bar chart durasi per hari dan breakdown proyek untuk visualisasi data yang jelas.</p>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">🤖</div>
+            <h3 class="info-card-title">AI Insight</h3>
+            <p class="info-card-desc">Analisis otomatis dengan AI untuk menemukan pola produktivitas dan saran peningkatan.</p>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <!-- Processing State -->
+      <section class="processing-section" v-if="isProcessing">
+        <div class="processing-card">
+          <div class="processing-spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring spinner-ring-2"></div>
+            <div class="spinner-dot"></div>
+          </div>
+          <h2 class="processing-title">Memproses Data...</h2>
+          <p class="processing-subtitle">{{ processingMessage }}</p>
+          <div class="processing-steps">
+            <div class="step" :class="{ active: currentStep >= 1, done: currentStep > 1 }">
+              <div class="step-indicator">
+                <svg v-if="currentStep > 1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+                <span v-else>1</span>
+              </div>
+              <span>Parsing CSV</span>
+            </div>
+            <div class="step" :class="{ active: currentStep >= 2, done: currentStep > 2 }">
+              <div class="step-indicator">
+                <svg v-if="currentStep > 2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+                <span v-else>2</span>
+              </div>
+              <span>Menghitung Statistik</span>
+            </div>
+            <div class="step" :class="{ active: currentStep >= 3, done: currentStep > 3 }">
+              <div class="step-indicator">
+                <svg v-if="currentStep > 3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+                <span v-else>3</span>
+              </div>
+              <span>Membuat PDF</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Result Section -->
+      <section class="result-section" v-if="reportReady && !isProcessing">
+        <div class="result-card">
+          <div class="result-icon-wrapper">
+            <svg class="result-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          </div>
+          <h2 class="result-title">Laporan Siap!</h2>
+          <p class="result-subtitle">PDF laporan produktivitas kamu sudah berhasil dibuat.</p>
+
+          <!-- Stats preview -->
+          <div class="stats-preview" v-if="reportStats">
+            <div class="stat-pill">
+              <span class="stat-pill-label">Total</span>
+              <span class="stat-pill-value">{{ formatDuration(reportStats.totalMinutes) }}</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-pill-label">Hari Aktif</span>
+              <span class="stat-pill-value">{{ reportStats.activeDays }} hari</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-pill-label">Rata-rata</span>
+              <span class="stat-pill-value">{{ formatDuration(reportStats.avgPerDay) }}/hari</span>
+            </div>
+            <div class="stat-pill" v-if="reportStats.projectCount > 1">
+              <span class="stat-pill-label">Proyek</span>
+              <span class="stat-pill-value">{{ reportStats.projectCount }} proyek</span>
+            </div>
+          </div>
+
+          <div class="result-actions">
+            <button class="btn btn-primary btn-lg" @click="downloadPDF" id="download-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Download PDF
+            </button>
+            <button class="btn btn-secondary" @click="resetState" id="reset-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <polyline points="1 4 1 10 7 10" />
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+              </svg>
+              Upload Lagi
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Error toast -->
+      <Transition name="toast">
+        <div class="toast toast-error" v-if="errorMessage" @click="errorMessage = ''">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
+          </svg>
+          {{ errorMessage }}
+        </div>
+      </Transition>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>FocusReport — Dibuat dengan ❤️ untuk produktivitas</p>
+    </footer>
   </div>
 </template>
 
-<script setup>
-definePageMeta({
-  layout: 'default',
-})
+<script setup lang="ts">
+import Papa from 'papaparse'
 
-useHead({
-  title: 'FocusReport — Turn Your Pomodoro Sessions Into Insights',
-})
+const fileInput = ref<HTMLInputElement | null>(null)
+const isDragging = ref(false)
+const isProcessing = ref(false)
+const reportReady = ref(false)
+const errorMessage = ref('')
+const processingMessage = ref('')
+const currentStep = ref(0)
 
-const steps = [
-  {
-    icon: '📤',
-    title: 'Upload CSV',
-    desc: 'Drag & drop your Pomofocus CSV export file. We support the standard Pomofocus format.',
-  },
-  {
-    icon: '⚡',
-    title: 'Auto Analyze',
-    desc: 'Our system calculates statistics, generates charts, and writes AI-powered insights.',
-  },
-  {
-    icon: '📄',
-    title: 'Download PDF',
-    desc: 'Get a beautiful, professional PDF report ready to download, share, or archive.',
-  },
-]
+const pdfBase64 = ref('')
+const pdfFilename = ref('')
+const reportStats = ref<any>(null)
 
-const features = [
-  {
-    icon: '📊',
-    title: 'Smart Statistics',
-    desc: 'Total time, active days, daily averages, peak days — all calculated automatically.',
-  },
-  {
-    icon: '🤖',
-    title: 'AI-Powered Insights',
-    desc: 'Groq AI analyzes your data and writes motivational, actionable insights in Bahasa Indonesia.',
-  },
-  {
-    icon: '📈',
-    title: 'Visual Charts',
-    desc: 'Beautiful bar charts, project distribution, and weekly trends in your PDF report.',
-  },
-  {
-    icon: '⚡',
-    title: 'Lightning Fast',
-    desc: 'From upload to PDF in under 30 seconds. No waiting, no hassle.',
-  },
-  {
-    icon: '🔒',
-    title: 'Secure & Private',
-    desc: 'Your data is processed securely. We never share your productivity data with anyone.',
-  },
-  {
-    icon: '🌐',
-    title: 'Open Source',
-    desc: 'Fully open source under AGPLv3. Self-host it, modify it, contribute to it.',
-  },
-]
+function triggerFileInput() {
+  fileInput.value?.click()
+}
+
+function handleFileSelect(e: Event) {
+  const input = e.target as HTMLInputElement
+  if (input.files && input.files[0]) {
+    processFile(input.files[0])
+  }
+}
+
+function handleDrop(e: DragEvent) {
+  isDragging.value = false
+  if (e.dataTransfer?.files && e.dataTransfer.files[0]) {
+    const file = e.dataTransfer.files[0]
+    if (file.name.endsWith('.csv')) {
+      processFile(file)
+    } else {
+      errorMessage.value = 'Hanya file .csv yang diterima'
+      setTimeout(() => (errorMessage.value = ''), 4000)
+    }
+  }
+}
+
+function formatDuration(minutes: number) {
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  if (h > 0) return `${h}j ${m}m`
+  return `${m}m`
+}
+
+async function processFile(file: File) {
+  isProcessing.value = true
+  currentStep.value = 1
+  processingMessage.value = 'Membaca dan parsing file CSV...'
+  errorMessage.value = ''
+
+  try {
+    // Step 1: Parse CSV
+    const text = await file.text()
+    const parsed = Papa.parse(text, {
+      header: true,
+      skipEmptyLines: true,
+    })
+
+    if (!parsed.data || parsed.data.length === 0) {
+      throw new Error('File CSV kosong atau format tidak dikenali.')
+    }
+
+    // Auto-detect columns
+    const firstRow = parsed.data[0] as any
+    const headers = Object.keys(firstRow)
+
+    // Try to map columns
+    const dateCol = headers.find((h) => /date|tanggal|hari/i.test(h)) || headers[0]
+    const minutesCol = headers.find((h) => /minute|menit|duration|durasi|time|waktu/i.test(h)) || headers[1]
+    const projectCol = headers.find((h) => /project|proyek|task|tugas|category|kategori/i.test(h))
+
+    const data = parsed.data.map((row: any) => ({
+      date: String(row[dateCol] || '').trim(),
+      minutes: parseInt(String(row[minutesCol] || '0').replace(/[^0-9]/g, '')) || 0,
+      project: projectCol ? String(row[projectCol] || '').trim() : '',
+    })).filter((r: any) => r.date && r.minutes > 0)
+
+    if (data.length === 0) {
+      throw new Error('Tidak ada data valid ditemukan. Pastikan CSV memiliki kolom tanggal dan menit/durasi.')
+    }
+
+    // Step 2: Send to server
+    await new Promise((r) => setTimeout(r, 500))
+    currentStep.value = 2
+    processingMessage.value = 'Menghitung statistik dan membuat analisis...'
+
+    await new Promise((r) => setTimeout(r, 300))
+    currentStep.value = 3
+    processingMessage.value = 'Membuat PDF laporan...'
+
+    const response = await $fetch('/api/generate', {
+      method: 'POST',
+      body: {
+        filename: file.name,
+        data,
+      },
+    })
+
+    if (response.success) {
+      pdfBase64.value = response.pdf
+      pdfFilename.value = response.filename
+      reportStats.value = response.stats
+      currentStep.value = 4
+
+      await new Promise((r) => setTimeout(r, 600))
+      isProcessing.value = false
+      reportReady.value = true
+    }
+  } catch (err: any) {
+    isProcessing.value = false
+    errorMessage.value = err?.data?.statusMessage || err.message || 'Terjadi kesalahan saat memproses file.'
+    setTimeout(() => (errorMessage.value = ''), 6000)
+  }
+}
+
+function downloadPDF() {
+  if (!pdfBase64.value) return
+
+  const byteCharacters = atob(pdfBase64.value)
+  const byteNumbers = new Array(byteCharacters.length)
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i)
+  }
+  const byteArray = new Uint8Array(byteNumbers)
+  const blob = new Blob([byteArray], { type: 'application/pdf' })
+
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = pdfFilename.value || 'report.pdf'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+
+function resetState() {
+  reportReady.value = false
+  pdfBase64.value = ''
+  pdfFilename.value = ''
+  reportStats.value = null
+  currentStep.value = 0
+  if (fileInput.value) fileInput.value.value = ''
+}
 </script>
 
 <style scoped>
-/* Hero */
-.hero {
-  position: relative;
-  padding: calc(var(--nav-height) + var(--space-3xl)) 0 var(--space-3xl);
-  overflow: hidden;
-  min-height: 90vh;
+/* ===================================
+   Layout
+   =================================== */
+.app-wrapper {
+  min-height: 100vh;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
 
-.hero-bg {
-  position: absolute;
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ===================================
+   Background Effects
+   =================================== */
+.bg-effects {
+  position: fixed;
   inset: 0;
   pointer-events: none;
+  z-index: 0;
 }
 
-.hero-grid {
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.4;
+}
+
+.bg-orb-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(124, 93, 250, 0.15), transparent 70%);
+  top: -150px;
+  right: -100px;
+  animation: float 20s ease-in-out infinite;
+}
+
+.bg-orb-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(192, 132, 252, 0.1), transparent 70%);
+  bottom: -100px;
+  left: -100px;
+  animation: float 25s ease-in-out infinite reverse;
+}
+
+.bg-orb-3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.08), transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: float 30s ease-in-out infinite;
+}
+
+.bg-grid {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(124, 93, 250, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(124, 93, 250, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
   background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse 50% 60% at 50% 40%, black, transparent);
+  mask-image: radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%);
 }
 
-.hero-glow {
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 800px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(124, 93, 250, 0.08) 0%, transparent 70%);
-}
-
-.hero-content {
+/* ===================================
+   Hero
+   =================================== */
+.hero {
   text-align: center;
-  position: relative;
-  z-index: 1;
+  margin-bottom: 3rem;
+  animation: fadeInUp 0.6s ease forwards;
 }
 
 .hero-badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-xl);
+  gap: 0.5rem;
+  padding: 0.35rem 1rem;
+  background: rgba(124, 93, 250, 0.1);
+  border: 1px solid rgba(124, 93, 250, 0.2);
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--accent-light);
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.02em;
 }
 
-.hero-badge-text {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
+.hero-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s ease-in-out infinite;
 }
 
 .hero-title {
   font-size: 3.5rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.04em;
+  margin-bottom: 1rem;
   line-height: 1.1;
-  margin-bottom: var(--space-lg);
 }
 
-.hero-desc {
-  font-size: 1.15rem;
+.hero-subtitle {
+  font-size: 1.1rem;
   color: var(--text-secondary);
-  max-width: 560px;
-  margin: 0 auto var(--space-xl);
-  line-height: 1.7;
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
-.hero-actions {
+/* ===================================
+   Upload Zone
+   =================================== */
+.upload-section {
+  width: 100%;
+  animation: fadeInUp 0.7s ease forwards;
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+
+.upload-zone {
+  border: 2px dashed rgba(124, 93, 250, 0.25);
+  border-radius: var(--radius-xl);
+  padding: 3.5rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  background: rgba(22, 22, 31, 0.6);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-zone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(124, 93, 250, 0.05), transparent 70%);
+  transition: opacity var(--transition-normal);
+}
+
+.upload-zone:hover,
+.upload-zone.drag-over {
+  border-color: var(--accent);
+  background: rgba(124, 93, 250, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(124, 93, 250, 0.15);
+}
+
+.upload-zone:hover::before,
+.upload-zone.drag-over::before {
+  opacity: 1;
+}
+
+.upload-zone-visual {
+  position: relative;
+  z-index: 1;
+}
+
+.upload-icon-wrapper {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1.5rem;
+  border-radius: var(--radius-lg);
+  background: rgba(124, 93, 250, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-md);
-  margin-bottom: var(--space-3xl);
+  transition: all var(--transition-normal);
 }
 
-.hero-stats {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xl);
-  padding: var(--space-lg) var(--space-2xl);
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl);
+.upload-zone:hover .upload-icon-wrapper {
+  background: rgba(124, 93, 250, 0.2);
+  transform: scale(1.05);
 }
 
-.hero-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.hero-stat-value {
-  font-size: 1.5rem;
-  font-weight: 800;
+.upload-icon {
+  width: 32px;
+  height: 32px;
   color: var(--accent-light);
 }
 
-.hero-stat-label {
-  font-size: 0.75rem;
+.upload-zone-text {
+  margin-bottom: 1.5rem;
+}
+
+.upload-zone-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.upload-zone-subtitle {
+  font-size: 0.9rem;
   color: var(--text-tertiary);
-  text-transform: uppercase;
+}
+
+.upload-zone-formats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.format-tag {
+  padding: 0.25rem 0.75rem;
+  background: rgba(124, 93, 250, 0.15);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-light);
   letter-spacing: 0.05em;
 }
 
-.hero-stat-divider {
-  width: 1px;
-  height: 36px;
-  background: var(--border-color);
+.format-info {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
 }
 
-/* Sections */
-.how-section,
-.features-section,
-.pricing-section,
-.cta-section {
-  padding: var(--space-3xl) 0;
-}
-
-.section-title {
-  font-size: 2.25rem;
-  font-weight: 800;
-  margin-bottom: var(--space-sm);
-}
-
-.section-desc {
-  color: var(--text-secondary);
-  font-size: 1rem;
-  margin-bottom: var(--space-2xl);
-}
-
-/* Steps */
-.steps-grid {
+/* ===================================
+   Info Cards
+   =================================== */
+.info-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-xl);
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
-.step-card {
+.info-card {
+  background: rgba(22, 22, 31, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  transition: all var(--transition-normal);
+}
+
+.info-card:hover {
+  border-color: var(--border-color-hover);
+  transform: translateY(-2px);
+}
+
+.info-card-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.info-card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.info-card-desc {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
+/* ===================================
+   Processing
+   =================================== */
+.processing-section {
+  width: 100%;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.processing-card {
+  background: rgba(22, 22, 31, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 3rem 2rem;
   text-align: center;
+}
+
+.processing-spinner {
+  width: 80px;
+  height: 80px;
   position: relative;
+  margin: 0 auto 2rem;
 }
 
-.step-number {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--accent);
-  letter-spacing: 0.1em;
-  margin-bottom: var(--space-md);
-}
-
-.step-icon {
-  font-size: 2.5rem;
-  margin-bottom: var(--space-md);
-}
-
-.step-title {
-  font-size: 1.15rem;
-  margin-bottom: var(--space-sm);
-}
-
-.step-desc {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-/* Features */
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-lg);
-}
-
-.feature-card {
-  padding: var(--space-xl);
-}
-
-.feature-icon {
-  font-size: 2rem;
-  margin-bottom: var(--space-md);
-}
-
-.feature-title {
-  font-size: 1.05rem;
-  margin-bottom: var(--space-sm);
-}
-
-.feature-desc {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-/* Pricing */
-.pricing-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-xl);
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.pricing-card {
-  padding: var(--space-2xl);
-  position: relative;
-}
-
-.pricing-card-pro {
-  border-color: rgba(245, 158, 11, 0.2);
-}
-
-.pricing-popular {
+.spinner-ring {
   position: absolute;
-  top: -12px;
+  inset: 0;
+  border: 3px solid transparent;
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spinner-ring-2 {
+  inset: 8px;
+  border-top-color: var(--accent-light);
+  animation-direction: reverse;
+  animation-duration: 1.5s;
+}
+
+.spinner-dot {
+  position: absolute;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
 }
 
-.pricing-header {
-  margin-bottom: var(--space-xl);
+.processing-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
-.pricing-price {
-  font-size: 2.5rem;
-  font-weight: 900;
-  margin-top: var(--space-md);
+.processing-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
 }
 
-.pricing-period {
+.processing-steps {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   color: var(--text-tertiary);
   font-size: 0.85rem;
+  transition: all var(--transition-normal);
 }
 
-.pricing-features {
-  list-style: none;
+.step.active {
+  color: var(--accent-light);
+}
+
+.step.done {
+  color: var(--success);
+}
+
+.step-indicator {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
   display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-xl);
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
-.pricing-features li {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
+.step.done .step-indicator {
+  background: var(--success);
+  border-color: var(--success);
+  color: white;
 }
 
-/* CTA */
-.cta-card {
+.step-indicator svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ===================================
+   Result
+   =================================== */
+.result-section {
+  width: 100%;
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+.result-card {
+  background: rgba(22, 22, 31, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 3rem 2rem;
   text-align: center;
-  padding: var(--space-3xl);
-  background: linear-gradient(135deg, var(--bg-card), rgba(124, 93, 250, 0.05));
-  border-color: rgba(124, 93, 250, 0.1);
 }
 
-.cta-title {
-  font-size: 2rem;
-  font-weight: 800;
-  margin-bottom: var(--space-md);
+.result-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  background: var(--success-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: glow-success 2s ease-in-out infinite;
 }
 
-.cta-desc {
-  font-size: 1rem;
+@keyframes glow-success {
+  0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(34, 197, 94, 0.25); }
+}
+
+.result-icon {
+  width: 36px;
+  height: 36px;
+  color: var(--success);
+}
+
+.result-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.result-subtitle {
   color: var(--text-secondary);
-  margin-bottom: var(--space-xl);
-  max-width: 480px;
-  margin-left: auto;
-  margin-right: auto;
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
 }
 
+/* Stats Preview */
+.stats-preview {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(124, 93, 250, 0.08);
+  border: 1px solid rgba(124, 93, 250, 0.15);
+  border-radius: var(--radius-full);
+}
+
+.stat-pill-label {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.stat-pill-value {
+  font-size: 0.85rem;
+  color: var(--accent-light);
+  font-weight: 700;
+}
+
+.result-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* ===================================
+   Toast
+   =================================== */
+.toast-enter-active {
+  animation: slideInRight 0.3s ease forwards;
+}
+
+.toast-leave-active {
+  animation: slideOutRight 0.3s ease forwards;
+}
+
+@keyframes slideOutRight {
+  to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+}
+
+/* ===================================
+   Footer
+   =================================== */
+.app-footer {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===================================
+   Responsive
+   =================================== */
 @media (max-width: 768px) {
   .hero-title {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
   }
 
-  .hero-actions {
-    flex-direction: column;
+  .hero-subtitle {
+    font-size: 0.95rem;
   }
 
-  .hero-stats {
-    flex-direction: column;
-    gap: var(--space-md);
-    padding: var(--space-lg);
-  }
-
-  .hero-stat-divider {
-    width: 40px;
-    height: 1px;
-  }
-
-  .steps-grid,
-  .features-grid,
-  .pricing-grid {
+  .info-grid {
     grid-template-columns: 1fr;
+  }
+
+  .processing-steps {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .result-actions {
+    flex-direction: column;
+  }
+
+  .stats-preview {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .upload-zone {
+    padding: 2.5rem 1.5rem;
   }
 }
 </style>
