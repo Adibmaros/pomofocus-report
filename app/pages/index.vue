@@ -12,10 +12,6 @@
 
       <!-- Hero -->
       <header class="text-center mb-10 animate-fade-in-up">
-        <div class="badge badge-primary badge-outline gap-2 mb-5 text-xs font-semibold tracking-wide">
-          <span class="w-1.5 h-1.5 rounded-full bg-primary" style="animation: pulse-soft 2s ease-in-out infinite;"></span>
-          CSV → PDF Report
-        </div>
         <h1 class="text-5xl sm:text-6xl font-extrabold tracking-tight mb-4">
           <span class="bg-gradient-to-r from-primary via-purple-500 to-accent bg-clip-text text-transparent">FocusReport</span>
         </h1>
@@ -160,8 +156,19 @@
     </main>
 
     <!-- Footer -->
-    <footer class="text-center py-6 text-xs text-base-content/30 relative z-10">
-      FocusReport — Dibuat dengan ❤️ untuk produktivitas
+    <footer class="text-center py-10 text-xs text-base-content/40 relative z-10 flex flex-col items-center gap-4 animate-fade-in-up-delay-2">
+      <p>FocusReport — Dibuat dengan ❤️ oleh Adib Muhammad Maros untuk produktivitas</p>
+      <div class="flex items-center gap-4">
+        <a href="https://github.com/Adibmaros/pomofocus-report" target="_blank" class="flex items-center gap-2 hover:text-primary transition-all duration-300 group">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+          <span class="font-medium group-hover:translate-x-0.5">GitHub Repository</span>
+        </a>
+        <div class="w-px h-3 bg-base-content/10 hidden sm:block"></div>
+        <a href="https://github.com/Adibmaros/pomofocus-report/fork" target="_blank" class="flex items-center gap-2 hover:text-accent transition-all duration-300 group">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><path d="M6 3v12"></path><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path></svg>
+          <span class="group-hover:translate-x-0.5 text-base-content/40 group-hover:text-accent">Clone & Contribute</span>
+        </a>
+      </div>
     </footer>
 
     <!-- ===================================
